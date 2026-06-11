@@ -146,9 +146,14 @@ export const ProductsPage = () => {
                 </p>
 
                 <div className="mt-4 flex items-center justify-between">
-                  <span className="font-bold text-gray-900">
-                    ${product.price.toLocaleString("es-AR")}
-                  </span>
+                  <div className="flex flex-col">
+                    <span className="font-bold text-gray-900">
+                      ${product.price.toLocaleString("es-AR")}
+                    </span>
+                    <span className="text-xs text-gray-500">
+                      Stock: {product.stock} {product.unitMeasure?.abreviatura ?? "uds."}
+                    </span>
+                  </div>
 
                   <span
                     className={`text-xs font-medium px-2.5 py-1 rounded-full ${

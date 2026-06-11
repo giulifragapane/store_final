@@ -3,6 +3,12 @@ import type { IProduct } from "../types/product.types";
 
 const BASE_URL = "/productos/";
 
+type UnitMeasureApi = {
+  id: number;
+  nombre: string;
+  abreviatura: string;
+};
+
 type ProductApiCategory = {
   categoria: {
     id: number;
@@ -21,7 +27,11 @@ type ProductApiIngredient = {
     nombre: string;
     descripcion: string;
     es_alergeno: boolean;
+    stock_cantidad: number;
   };
+  cantidad: string;
+  unidad_medida_id: number | null;
+  unidad_medida: UnitMeasureApi | null;
   es_removible: boolean;
 };
 
@@ -33,6 +43,8 @@ type ProductApi = {
   imagenes_url: string[];
   stock_cantidad: number;
   disponible: boolean;
+  unidad_venta_id: number | null;
+  unidad_venta: UnitMeasureApi | null;
   categorias: ProductApiCategory[];
   ingredientes: ProductApiIngredient[];
 };
@@ -40,6 +52,16 @@ type ProductApi = {
 type ProductsApiResponse = {
   data: ProductApi[];
   total: number;
+};
+
+const mapUnitMeasureFromApi = (unit: UnitMeasureApi | null) => {
+  if (!unit) return null;
+
+  return {
+    id: String(unit.id),
+    nombre: unit.nombre,
+    abreviatura: unit.abreviatura,
+  };
 };
 
 const mapProductFromApi = (product: ProductApi): IProduct => ({
@@ -50,6 +72,11 @@ const mapProductFromApi = (product: ProductApi): IProduct => ({
   images: product.imagenes_url ?? [],
   stock: product.stock_cantidad,
   available: product.disponible,
+  unitMeasureId: product.unidad_venta_id
+    ? String(product.unidad_venta_id)
+    : null,
+  unitMeasure: mapUnitMeasureFromApi(product.unidad_venta),
+
   categories: (product.categorias ?? []).map((item) => ({
     categoria: {
       id: String(item.categoria.id),
@@ -63,13 +90,20 @@ const mapProductFromApi = (product: ProductApi): IProduct => ({
     },
     es_principal: item.es_principal,
   })),
+
   ingredients: (product.ingredientes ?? []).map((item) => ({
     ingrediente: {
       id: String(item.ingrediente.id),
       name: item.ingrediente.nombre,
       description: item.ingrediente.descripcion,
       isAllergen: item.ingrediente.es_alergeno,
+      stock: item.ingrediente.stock_cantidad ?? 0,
     },
+    cantidad: Number(item.cantidad),
+    unidad_medida_id: item.unidad_medida_id
+      ? String(item.unidad_medida_id)
+      : null,
+    unidad_medida: mapUnitMeasureFromApi(item.unidad_medida),
     es_removible: item.es_removible,
   })),
 });

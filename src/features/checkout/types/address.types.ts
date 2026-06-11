@@ -7,8 +7,6 @@ export interface IAddress {
   ciudad: string;
   provincia: string;
   codigo_postal: string | null;
-  latitud: number | null;
-  longitud: number | null;
   es_principal: boolean;
 }
 
@@ -24,7 +22,5 @@ export type AddressPayload = {
   ciudad: string;
   provincia: string;
   codigo_postal: string;
-  latitud: number | null;
-  longitud: number | null;
   es_principal: boolean;
 };

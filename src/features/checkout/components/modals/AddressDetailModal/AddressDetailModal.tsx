@@ -87,17 +87,6 @@ export const AddressDetailModal = ({ address, handleCloseModal }: Props) => {
             </p>
           </div>
 
-          {(address.latitud !== null || address.longitud !== null) && (
-            <div className="flex flex-col gap-1">
-              <span className="text-xs font-medium text-gray-400 uppercase tracking-wide">
-                Coordenadas
-              </span>
-
-              <p className="text-sm text-gray-700 font-mono">
-                {address.latitud ?? "-"}, {address.longitud ?? "-"}
-              </p>
-            </div>
-          )}
         </div>
 
         <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-100 bg-gray-50">

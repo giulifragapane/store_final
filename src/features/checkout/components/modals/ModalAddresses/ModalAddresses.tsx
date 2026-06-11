@@ -5,8 +5,9 @@ import type {
 } from "@/features/checkout/types/address.types";
 
 type Props = {
-  addressActive: IAddress;
+  addressActive: IAddress | null;
   handleCloseModal: VoidFunction;
+  handleCreate: (data: AddressPayload) => Promise<IAddress>;
   handleUpdate: (
     id: number,
     data: Partial<AddressPayload>,
@@ -16,19 +17,20 @@ type Props = {
 export const AddressModal = ({
   addressActive,
   handleCloseModal,
+  handleCreate,
   handleUpdate,
 }: Props) => {
-  const [alias, setAlias] = useState(addressActive.alias ?? "");
-  const [linea1, setLinea1] = useState(addressActive.linea1);
-  const [linea2, setLinea2] = useState(addressActive.linea2 ?? "");
-  const [ciudad, setCiudad] = useState(addressActive.ciudad);
-  const [provincia, setProvincia] = useState(addressActive.provincia);
+  const [alias, setAlias] = useState(addressActive?.alias ?? "");
+  const [linea1, setLinea1] = useState(addressActive?.linea1 ?? "");
+  const [linea2, setLinea2] = useState(addressActive?.linea2 ?? "");
+  const [ciudad, setCiudad] = useState(addressActive?.ciudad ?? "");
+  const [provincia, setProvincia] = useState(addressActive?.provincia ?? "");
   const [codigoPostal, setCodigoPostal] = useState(
-    addressActive.codigo_postal ?? "",
+    addressActive?.codigo_postal ?? "",
   );
-  const [latitud, setLatitud] = useState<number | null>(addressActive.latitud);
-  const [longitud, setLongitud] = useState<number | null>(addressActive.longitud);
-  const [esPrincipal, setEsPrincipal] = useState(addressActive.es_principal);
+  const [esPrincipal, setEsPrincipal] = useState(
+    addressActive?.es_principal ?? false,
+  );
   const [error, setError] = useState("");
 
   const handleSubmit = async (e: SyntheticEvent) => {
@@ -52,17 +54,21 @@ export const AddressModal = ({
     }
 
     try {
-      await handleUpdate(addressActive.id, {
+      const payload: AddressPayload = {
         alias,
         linea1,
         linea2,
         ciudad,
         provincia,
         codigo_postal: codigoPostal,
-        latitud,
-        longitud,
         es_principal: esPrincipal,
-      });
+      };
+
+      if (addressActive) {
+        await handleUpdate(addressActive.id, payload);
+      } else {
+        await handleCreate(payload);
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Error inesperado");
     }
@@ -73,7 +79,7 @@ export const AddressModal = ({
       <div className="relative w-full max-w-lg mx-4 bg-white rounded-2xl shadow-2xl overflow-hidden">
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
           <h2 className="text-lg font-semibold text-gray-800">
-            Editar dirección
+            {addressActive ? "Editar dirección" : "Nueva dirección"}
           </h2>
 
           <button
@@ -176,44 +182,6 @@ export const AddressModal = ({
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div className="flex flex-col gap-1">
-                <label className="text-sm font-medium text-gray-600">
-                  Latitud
-                </label>
-
-                <input
-                  type="number"
-                  step="any"
-                  value={latitud ?? ""}
-                  onChange={(e) =>
-                    setLatitud(
-                      e.target.value === "" ? null : Number(e.target.value),
-                    )
-                  }
-                  className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-
-              <div className="flex flex-col gap-1">
-                <label className="text-sm font-medium text-gray-600">
-                  Longitud
-                </label>
-
-                <input
-                  type="number"
-                  step="any"
-                  value={longitud ?? ""}
-                  onChange={(e) =>
-                    setLongitud(
-                      e.target.value === "" ? null : Number(e.target.value),
-                    )
-                  }
-                  className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-            </div>
-
             <label className="flex items-center gap-2 text-sm text-gray-700">
               <input
                 type="checkbox"
@@ -238,7 +206,7 @@ export const AddressModal = ({
             form="address-form"
             className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors"
           >
-            Guardar cambios
+            {addressActive ? "Guardar cambios" : "Crear dirección"}
           </button>
         </div>
       </div>

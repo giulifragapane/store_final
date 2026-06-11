@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
+  createAddress,
   deleteAddress,
   getAddresses,
   updateAddress,
@@ -27,7 +28,7 @@ export const AddressesPage = () => {
     setOpenModal(false);
   };
 
-  const handleOpenModal = (address: IAddress) => {
+  const handleOpenModal = (address: IAddress | null = null) => {
     setAddressActive(address);
     setOpenModal(true);
   };
@@ -44,6 +45,18 @@ export const AddressesPage = () => {
   });
 
   const addresses = data?.data ?? [];
+
+  const createMutation = useMutation({
+    mutationFn: createAddress,
+
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["addresses"],
+      });
+
+      handleCloseModal();
+    },
+  });
 
   const updateMutation = useMutation({
     mutationFn: ({
@@ -105,12 +118,21 @@ export const AddressesPage = () => {
   return (
     <>
       <div className="w-full max-w-5xl mx-auto px-4 py-6">
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold text-gray-900">Mis direcciones</h1>
+        <div className="mb-6 flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">Mis direcciones</h1>
 
-          <p className="text-sm text-gray-500 mt-0.5">
-            {addresses.length} direcciones registradas
-          </p>
+            <p className="text-sm text-gray-500 mt-0.5">
+              {addresses.length} direcciones registradas
+            </p>
+          </div>
+
+          <button
+            onClick={() => handleOpenModal()}
+            className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            Nueva dirección
+          </button>
         </div>
 
         <div className="rounded-2xl border border-gray-100 overflow-hidden shadow-sm">
@@ -208,10 +230,11 @@ export const AddressesPage = () => {
         </div>
       </div>
 
-      {openModal && addressActive && (
+      {openModal && (
         <AddressModal
           addressActive={addressActive}
           handleCloseModal={handleCloseModal}
+          handleCreate={(data: AddressPayload) => createMutation.mutateAsync(data)}
           handleUpdate={(id, data) =>
             updateMutation.mutateAsync({
               id,

@@ -52,8 +52,6 @@ export const CheckoutPage = () => {
       ciudad: "",
       provincia: "",
       codigo_postal: "",
-      latitud: null,
-      longitud: null,
       es_principal: addresses.length === 0,
     } as AddressFormValues,
     onSubmit: async ({ value }) => {

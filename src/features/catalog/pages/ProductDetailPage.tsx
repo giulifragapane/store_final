@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useCartStore } from "@/features/cart";
 import { useProductDetail } from "../hooks/useProductDetail";
@@ -7,12 +8,21 @@ export const ProductDetailPage = () => {
   const navigate = useNavigate();
 
   const addProduct = useCartStore((state) => state.addProduct);
+  const [removedIngredientIds, setRemovedIngredientIds] = useState<number[]>([]);
 
   const {
     data: product,
     isLoading,
     isError,
   } = useProductDetail(id);
+
+  const handleToggleRemovedIngredient = (ingredientId: number) => {
+    setRemovedIngredientIds((prev) =>
+      prev.includes(ingredientId)
+        ? prev.filter((id) => id !== ingredientId)
+        : [...prev, ingredientId],
+    );
+  };
 
   if (isLoading) {
     return (
@@ -122,30 +132,56 @@ export const ProductDetailPage = () => {
 
             <div className="flex flex-wrap gap-2 mt-2">
               {product.ingredients.length > 0 ? (
-                product.ingredients.map((item) => (
-                  <span
-                    key={`detail-ing-${item.ingrediente.id}`}
-                    className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${
-                      item.ingrediente.isAllergen
-                        ? "bg-red-100 text-red-700"
-                        : "bg-gray-100 text-gray-700"
-                    }`}
-                  >
-                    {item.ingrediente.name}
-                    {item.cantidad ? ` • ${item.cantidad}` : ""}
-                    {item.unidad_medida ? ` ${item.unidad_medida.abreviatura}` : ""}
-                    {item.ingrediente.isAllergen ? " • alérgeno" : ""}
-                    {item.es_removible ? " • removible" : ""}
-                  </span>
-                ))
+                product.ingredients.map((item) => {
+                  const ingredientId = Number(item.ingrediente.id);
+                  const isRemoved = removedIngredientIds.includes(ingredientId);
+
+                  return (
+                    <div
+                      key={`detail-ing-${item.ingrediente.id}`}
+                      className={`inline-flex items-center gap-2 px-2.5 py-1 rounded-full text-xs font-medium ${
+                        item.ingrediente.isAllergen
+                          ? "bg-red-100 text-red-700"
+                          : "bg-gray-100 text-gray-700"
+                      } ${isRemoved ? "opacity-100" : ""}`}
+                    >
+                      <span className={isRemoved ? "line-through" : ""}>
+                        {item.ingrediente.name}
+                        {item.cantidad ? ` • ${item.cantidad}` : ""}
+                        {item.unidad_medida ? ` ${item.unidad_medida.abreviatura}` : ""}
+                        {item.ingrediente.isAllergen ? " • alérgeno" : ""}
+                      </span>
+
+                      {item.es_removible && (
+                        <button
+                          type="button"
+                          onClick={() => handleToggleRemovedIngredient(ingredientId)}
+                          className={`ml-1 px-2 py-0.5 rounded-full text-[11px] font-semibold border ${
+                            isRemoved
+                              ? "bg-amber-100 text-amber-700 border-amber-200"
+                              : "bg-white text-red-600 border-red-200 hover:bg-red-50"
+                          }`}
+                        >
+                          {isRemoved ? "Volver a agregar" : "Quitar"}
+                        </button>
+                      )}
+                    </div>
+                  );
+                })
               ) : (
                 <span className="text-sm text-gray-500">Sin ingredientes</span>
               )}
             </div>
+
+            {removedIngredientIds.length > 0 && (
+              <p className="text-xs text-amber-700 mt-2">
+                Este producto se agregará al carrito sin los ingredientes marcados como quitados.
+              </p>
+            )}
           </div>
 
           <button
-            onClick={() => addProduct(product)}
+            onClick={() => addProduct(product, removedIngredientIds)}
             disabled={!product.available || product.stock <= 0}
             className="w-full sm:w-fit px-5 py-2.5 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >

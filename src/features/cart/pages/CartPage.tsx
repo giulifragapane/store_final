@@ -68,65 +68,82 @@ export const CartPage = () => {
 
       <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-          {items.map((item) => (
-            <div
-              key={item.product.id}
-              className="flex gap-4 p-4 border-b border-gray-100 last:border-b-0"
-            >
-              {item.product.images?.[0] ? (
-                <img
-                  src={item.product.images[0]}
-                  alt={item.product.name}
-                  className="w-24 h-24 object-cover rounded-xl border border-gray-200"
-                />
-              ) : (
-                <div className="w-24 h-24 bg-gray-100 rounded-xl flex items-center justify-center text-gray-400 text-xs">
-                  Sin imagen
-                </div>
-              )}
+          {items.map((item) => {
+            const removedIds = item.removedIngredientIds ?? [];
 
-              <div className="flex-1">
-                <h2 className="font-semibold text-gray-900">
-                  {item.product.name}
-                </h2>
+            const removedIngredientNames = item.product.ingredients
+              .filter((ingredientItem) =>
+                removedIds.includes(Number(ingredientItem.ingrediente.id)),
+              )
+              .map((ingredientItem) => ingredientItem.ingrediente.name)
+              .join(", ");
 
-                <p className="text-sm text-gray-500 mt-1 line-clamp-2">
-                  {item.product.description || "Sin descripción"}
-                </p>
+            return (
+              <div
+                key={`${item.product.id}-${removedIds.join("-")}`}
+                className="flex gap-4 p-4 border-b border-gray-100 last:border-b-0"
+              >
+                {item.product.images?.[0] ? (
+                  <img
+                    src={item.product.images[0]}
+                    alt={item.product.name}
+                    className="w-24 h-24 object-cover rounded-xl border border-gray-200"
+                  />
+                ) : (
+                  <div className="w-24 h-24 bg-gray-100 rounded-xl flex items-center justify-center text-gray-400 text-xs">
+                    Sin imagen
+                  </div>
+                )}
 
-                <p className="font-bold text-gray-900 mt-2">
-                  ${item.product.price.toLocaleString("es-AR")}
-                </p>
+                <div className="flex-1">
+                  <h2 className="font-semibold text-gray-900">
+                    {item.product.name}
+                  </h2>
 
-                <div className="flex items-center gap-3 mt-3">
-                  <button
-                    onClick={() => decreaseQuantity(item.product.id)}
-                    className="w-8 h-8 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700"
-                  >
-                    -
-                  </button>
+                  <p className="text-sm text-gray-500 mt-1 line-clamp-2">
+                    {item.product.description || "Sin descripción"}
+                  </p>
 
-                  <span className="text-sm font-medium text-gray-800">
-                    {item.quantity}
-                  </span>
+                  {removedIds.length > 0 && (
+                    <p className="text-xs text-amber-700 mt-1">
+                      Sin: {removedIngredientNames || "ingredientes seleccionados"}
+                    </p>
+                  )}
 
-                  <button
-                    onClick={() => increaseQuantity(item.product.id)}
-                    className="w-8 h-8 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700"
-                  >
-                    +
-                  </button>
+                  <p className="font-bold text-gray-900 mt-2">
+                    ${item.product.price.toLocaleString("es-AR")}
+                  </p>
 
-                  <button
-                    onClick={() => removeProduct(item.product.id)}
-                    className="ml-auto px-3 py-1.5 text-xs font-medium text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors"
-                  >
-                    Eliminar
-                  </button>
+                  <div className="flex items-center gap-3 mt-3">
+                    <button
+                      onClick={() => decreaseQuantity(item.product.id, removedIds)}
+                      className="w-8 h-8 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700"
+                    >
+                      -
+                    </button>
+
+                    <span className="text-sm font-medium text-gray-800">
+                      {item.quantity}
+                    </span>
+
+                    <button
+                      onClick={() => increaseQuantity(item.product.id, removedIds)}
+                      className="w-8 h-8 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700"
+                    >
+                      +
+                    </button>
+
+                    <button
+                      onClick={() => removeProduct(item.product.id, removedIds)}
+                      className="ml-auto px-3 py-1.5 text-xs font-medium text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors"
+                    >
+                      Eliminar
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
         <aside className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 h-fit">

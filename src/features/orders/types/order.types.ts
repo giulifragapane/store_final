@@ -14,6 +14,7 @@ export interface IOrderDetail {
   producto_nombre: string;
   precio_unitario: string;
   subtotal: string;
+  personalizacion: number[];
 }
 
 export interface IOrder {

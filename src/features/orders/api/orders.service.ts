@@ -7,6 +7,7 @@ export type CreateOrderPayload = {
   detalles: {
     producto_id: number;
     cantidad: number;
+    personalizacion: number[];
   }[];
 };
 

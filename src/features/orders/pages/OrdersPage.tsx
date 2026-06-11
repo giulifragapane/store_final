@@ -123,6 +123,11 @@ export const OrdersPage = () => {
                         {Number(detail.precio_unitario).toLocaleString(
                           "es-AR",
                         )}
+                        {detail.personalizacion?.length > 0 && (
+                          <p className="text-xs text-amber-700 mt-1">
+                            Personalización: sin ingredientes #{detail.personalizacion.join(", #")}
+                          </p>
+                        )}
                       </p>
                     </div>
 

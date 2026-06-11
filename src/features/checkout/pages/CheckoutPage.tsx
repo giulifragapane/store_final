@@ -84,6 +84,7 @@ export const CheckoutPage = () => {
       detalles: items.map((item) => ({
         producto_id: Number(item.product.id),
         cantidad: item.quantity,
+        personalizacion: item.removedIngredientIds ?? [],
       })),
     });
   };

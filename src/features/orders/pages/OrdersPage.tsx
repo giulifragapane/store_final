@@ -6,7 +6,6 @@ const statusLabels: Record<OrderStatus, string> = {
   PENDIENTE: "Pendiente",
   CONFIRMADO: "Confirmado",
   EN_PREP: "En preparación",
-  EN_CAMINO: "En camino",
   ENTREGADO: "Entregado",
   CANCELADO: "Cancelado",
 };
@@ -15,7 +14,6 @@ const statusClasses: Record<OrderStatus, string> = {
   PENDIENTE: "bg-yellow-100 text-yellow-700",
   CONFIRMADO: "bg-blue-100 text-blue-700",
   EN_PREP: "bg-purple-100 text-purple-700",
-  EN_CAMINO: "bg-indigo-100 text-indigo-700",
   ENTREGADO: "bg-green-100 text-green-700",
   CANCELADO: "bg-red-100 text-red-700",
 };

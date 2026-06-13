@@ -1,10 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
 import { getOrders } from "../api/orders.service";
-import type { IOrder } from "../types/order.types";
+import { useOrdersRealtime } from "./useOrdersRealtime";
 
 export const useOrders = () => {
-  return useQuery<IOrder[]>({
+  useOrdersRealtime();
+
+  return useQuery({
     queryKey: ["orders"],
     queryFn: getOrders,
+    staleTime: 1000 * 30,
   });
 };

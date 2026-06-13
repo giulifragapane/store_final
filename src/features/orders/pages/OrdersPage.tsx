@@ -118,17 +118,20 @@ export const OrdersPage = () => {
                       <p className="font-medium text-gray-800">
                         {detail.producto_nombre}
                       </p>
-                      <p className="text-gray-500">
+
+                      <div className="text-gray-500">
                         Cantidad: {detail.cantidad} · Precio unitario: $
                         {Number(detail.precio_unitario).toLocaleString(
                           "es-AR",
                         )}
+
                         {detail.personalizacion?.length > 0 && (
-                          <p className="text-xs text-amber-700 mt-1">
-                            Personalización: sin ingredientes #{detail.personalizacion.join(", #")}
-                          </p>
+                          <div className="text-xs text-amber-700 mt-1">
+                            Personalización: sin ingredientes #
+                            {detail.personalizacion.join(", #")}
+                          </div>
                         )}
-                      </p>
+                      </div>
                     </div>
 
                     <p className="font-medium text-gray-900">

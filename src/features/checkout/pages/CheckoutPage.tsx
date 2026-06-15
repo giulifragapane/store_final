@@ -22,6 +22,7 @@ export const CheckoutPage = () => {
   );
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("EFECTIVO");
   const [error, setError] = useState("");
+  const [isRedirectingToMercadoPago, setIsRedirectingToMercadoPago] = useState(false);
 
   const {
     data: addressesResponse,
@@ -37,11 +38,36 @@ export const CheckoutPage = () => {
   });
 
   const createOrderMutation = useCreateOrder({
-    onSuccess: () => {
+    onSuccess: ({ order, payment }) => {
+      if (order.forma_pago === "MERCADOPAGO") {
+        const checkoutUrl = payment?.sandbox_init_point || payment?.init_point;
+
+        if (!checkoutUrl) {
+          clearCart();
+          setError(
+            "El pedido fue creado, pero no se pudo obtener el link de pago de MercadoPago.",
+          );
+          navigate("/orders");
+          return;
+        }
+
+        setIsRedirectingToMercadoPago(true);
+        clearCart();
+
+        setTimeout(() => {
+          window.location.href = checkoutUrl;
+        }, 100);
+
+        return;
+      }
+
       clearCart();
       navigate("/orders");
     },
-    onError: setError,
+    onError: (message) => {
+      setIsRedirectingToMercadoPago(false);
+      setError(message);
+    },
   });
 
   const form = useForm({
@@ -88,6 +114,22 @@ export const CheckoutPage = () => {
       })),
     });
   };
+
+  if (isRedirectingToMercadoPago) {
+    return (
+      <div className="w-full max-w-6xl mx-auto px-4 py-6">
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm py-16 text-center">
+          <p className="text-5xl mb-4">💳</p>
+          <h1 className="text-2xl font-bold text-gray-900">
+            Redirigiendo a Mercado Pago...
+          </h1>
+          <p className="text-sm text-gray-500 mt-2">
+            Estamos abriendo el checkout seguro para completar el pago.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   if (isLoading) {
     return (
@@ -463,6 +505,13 @@ export const CheckoutPage = () => {
                 Transferencia
               </label>
             </div>
+
+            {paymentMethod === "MERCADOPAGO" && (
+              <p className="mt-3 text-sm text-blue-700 bg-blue-50 border border-blue-100 rounded-lg px-3 py-2">
+                Al confirmar el pedido te redirigiremos al checkout seguro de
+                Mercado Pago.
+              </p>
+            )}
           </section>
         </div>
 
@@ -507,8 +556,12 @@ export const CheckoutPage = () => {
             className="w-full mt-5 px-4 py-2.5 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
           >
             {createOrderMutation.isPending
-              ? "Confirmando..."
-              : "Confirmar pedido"}
+              ? paymentMethod === "MERCADOPAGO"
+                ? "Redirigiendo a Mercado Pago..."
+                : "Confirmando..."
+              : paymentMethod === "MERCADOPAGO"
+                ? "Confirmar y pagar"
+                : "Confirmar pedido"}
           </button>
         </aside>
       </div>

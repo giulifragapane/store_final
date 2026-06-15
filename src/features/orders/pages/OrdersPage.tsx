@@ -22,6 +22,36 @@ const canCancelOrder = (status: OrderStatus) => {
   return status === "PENDIENTE" || status === "CONFIRMADO";
 };
 
+const paymentLabels = {
+  EFECTIVO: "Efectivo",
+  MERCADOPAGO: "Mercado Pago",
+  TRANSFERENCIA: "Transferencia",
+};
+
+const paymentStatusText = (status: OrderStatus) => {
+  if (status === "CONFIRMADO" || status === "EN_PREP" || status === "ENTREGADO") {
+    return "Pago acreditado";
+  }
+
+  if (status === "CANCELADO") {
+    return "Pedido cancelado";
+  }
+
+  return "Pago pendiente";
+};
+
+const paymentStatusClasses = (status: OrderStatus) => {
+  if (status === "CONFIRMADO" || status === "EN_PREP" || status === "ENTREGADO") {
+    return "bg-green-100 text-green-700";
+  }
+
+  if (status === "CANCELADO") {
+    return "bg-red-100 text-red-700";
+  }
+
+  return "bg-yellow-100 text-yellow-700";
+};
+
 export const OrdersPage = () => {
   const {
     data: orders = [],
@@ -91,11 +121,15 @@ export const OrdersPage = () => {
 
                   <div className="flex flex-wrap items-center gap-2 mt-2">
                     <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700">
-                      Forma de pago: {order.forma_pago}
+                      Forma de pago: {paymentLabels[order.forma_pago]}
                     </span>
 
-                    <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">
-                      Pagado
+                    <span
+                      className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${paymentStatusClasses(
+                        order.estado,
+                      )}`}
+                    >
+                      {paymentStatusText(order.estado)}
                     </span>
                   </div>
                 </div>

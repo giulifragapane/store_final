@@ -23,7 +23,7 @@ export const login = async ({
   formData.append("username", email);
   formData.append("password", password);
 
-  await api.post("/api/v1/auth/token", formData);
+  await api.post("/api/v1/auth/login", formData);
 
   const user = await getMe();
   return user;

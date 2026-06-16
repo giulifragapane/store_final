@@ -1,3 +1,6 @@
+import { Link } from "react-router-dom";
+
+import { useAuthStore } from "@/features/auth/store/auth.store";
 import type { OrderStatus } from "../types/order.types";
 import { useCancelOrder } from "../hooks/useCancelOrder";
 import { useOrders } from "../hooks/useOrders";
@@ -53,6 +56,9 @@ const paymentStatusClasses = (status: OrderStatus) => {
 };
 
 export const OrdersPage = () => {
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const isAuthLoading = useAuthStore((state) => state.isLoading);
+
   const {
     data: orders = [],
     isLoading,
@@ -60,6 +66,46 @@ export const OrdersPage = () => {
   } = useOrders();
 
   const cancelMutation = useCancelOrder();
+
+  if (isAuthLoading) {
+    return (
+      <div className="w-full max-w-6xl mx-auto px-4 py-6">
+        <p className="text-gray-600">Verificando sesión...</p>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <div className="w-full max-w-6xl mx-auto px-4 py-10">
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm px-6 py-12 text-center">
+          <p className="text-5xl mb-4">🔐</p>
+          <h1 className="text-2xl font-bold text-gray-900">
+            Iniciá sesión para ver tus pedidos
+          </h1>
+          <p className="text-sm text-gray-500 mt-2 max-w-md mx-auto">
+            Para consultar tu historial de pedidos necesitás ingresar con una cuenta de cliente.
+          </p>
+
+          <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-3">
+            <Link
+              to="/login"
+              className="w-full sm:w-auto px-5 py-2.5 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              Ingresar
+            </Link>
+
+            <Link
+              to="/register"
+              className="w-full sm:w-auto px-5 py-2.5 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
+            >
+              Crear cuenta
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (isLoading) {
     return (
@@ -72,7 +118,14 @@ export const OrdersPage = () => {
   if (isError) {
     return (
       <div className="w-full max-w-6xl mx-auto px-4 py-6">
-        <p className="text-red-600">No se pudieron cargar los pedidos.</p>
+        <div className="bg-white rounded-2xl border border-red-100 shadow-sm px-6 py-8">
+          <p className="text-red-600 font-medium">
+            No se pudieron cargar los pedidos.
+          </p>
+          <p className="text-sm text-gray-500 mt-1">
+            Intentá recargar la página o volver a iniciar sesión.
+          </p>
+        </div>
       </div>
     );
   }
@@ -95,6 +148,12 @@ export const OrdersPage = () => {
           <p className="text-sm text-gray-500 mt-2">
             Cuando confirmes una compra, aparecerá en esta sección.
           </p>
+          <Link
+            to="/"
+            className="inline-flex mt-6 px-5 py-2.5 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            Ver productos
+          </Link>
         </div>
       ) : (
         <div className="space-y-4">

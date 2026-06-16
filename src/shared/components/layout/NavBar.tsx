@@ -2,11 +2,10 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/features/auth";
 import { useCartStore } from "@/features/cart";
 
-const navLinks = [
+const publicNavLinks = [
   { label: "Productos", href: "/" },
   { label: "Carrito", href: "/cart" },
-  { label: "Mis pedidos", href: "/orders" },
-  { label: "Mis direcciones", href: "/addresses" },
+  { label: "Mis pedidos", href: "/orders" },  
 ];
 
 export const NavBar = () => {
@@ -16,6 +15,16 @@ export const NavBar = () => {
   const totalItems = useCartStore((state) => state.getTotalItems());
 
   const user = useAuthStore((state) => state.user);
+
+  const navLinks = [
+    ...publicNavLinks,
+    ...(user
+      ? [          
+          { label: "Mis direcciones", href: "/addresses" },
+        ]
+      : []),
+  ];
+
   const logoutUser = useAuthStore((state) => state.logoutUser);
 
   const handleLogout = async () => {
